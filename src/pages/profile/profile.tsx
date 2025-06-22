@@ -1,8 +1,7 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
-import { useSelector, useDispatch } from 'react-redux';
 import { updateUser, userSelectors } from '../../storage/slices/user';
-import { AppDispatch } from '../../storage';
+import { useAppDispatch, useAppSelector } from '../../storage/hooks';
 
 interface IFormValue {
   name: string;
@@ -12,8 +11,8 @@ interface IFormValue {
 
 export const Profile: FC = () => {
   /** TODO: взять переменную из стора */
-  const dispatch = useDispatch<AppDispatch>();
-  const user = useSelector(userSelectors.getUser);
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(userSelectors.getUser);
 
   const [formValue, setFormValue] = useState<IFormValue>({
     name: user?.name ?? '',

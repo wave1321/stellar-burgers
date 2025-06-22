@@ -41,7 +41,7 @@ export const userOrdersSlice = createSlice({
       .addCase(fetchUserOrders.rejected, (state, action) => {
         state.loading = false;
         state.error =
-          action.error.message || 'Невозможно получить заказ пользователя';
+          action.error.message || 'Невозможно получить заказы пользователя';
       });
   }
 });

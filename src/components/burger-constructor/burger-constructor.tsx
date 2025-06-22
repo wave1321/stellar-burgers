@@ -1,7 +1,6 @@
 import { FC, useMemo } from 'react';
 import { TConstructorIngredient } from '@utils-types';
 import { BurgerConstructorUI } from '@ui';
-import { useSelector } from 'react-redux';
 import { useNavigate } from 'react-router-dom';
 import {
   selectConstructorItems,
@@ -14,18 +13,18 @@ import {
   selectCurrentOrder,
   selectOrderLoading
 } from '../../storage/slices/order';
-import { useAppDispatch } from '../../storage/hooks';
+import { useAppDispatch, useAppSelector } from '../../storage/hooks';
 import { fetchFeeds } from '../../storage/slices/feed';
 
 export const BurgerConstructor: FC = () => {
   /** TODO: взять переменные constructorItems, orderRequest и orderModalData из стора */
   const dispatch = useAppDispatch();
   const navigate = useNavigate();
-  const user = useSelector(userSelectors.getUser);
+  const user = useAppSelector(userSelectors.getUser);
 
-  const constructorItems = useSelector(selectConstructorItems);
-  const orderRequest = useSelector(selectOrderLoading);
-  const orderModalData = useSelector(selectCurrentOrder);
+  const constructorItems = useAppSelector(selectConstructorItems);
+  const orderRequest = useAppSelector(selectOrderLoading);
+  const orderModalData = useAppSelector(selectCurrentOrder);
 
   const onOrderClick = async () => {
     if (!user) {
@@ -38,7 +37,9 @@ export const BurgerConstructor: FC = () => {
     try {
       const ingredientsIds = [
         constructorItems.bun._id,
-        ...constructorItems.ingredients.map((item) => item._id),
+        ...constructorItems.ingredients.map(
+          (item: { _id: string }) => item._id
+        ),
         constructorItems.bun._id
       ];
 

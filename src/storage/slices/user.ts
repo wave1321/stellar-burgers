@@ -93,7 +93,7 @@ export const userSlice = createSlice({
       .addCase(logoutUser.fulfilled, (state) => {
         state.data = null;
         state.isAuthChecked = true;
-        state.requestStatus = RequestStatus.Idle;
+        state.requestStatus = RequestStatus.Success;
       })
       .addMatcher(isActionPending(USER_SLICE_NAME), (state) => {
         state.requestStatus = RequestStatus.Loading;

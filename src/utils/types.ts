@@ -59,12 +59,3 @@ export type UserResponseToken = ServerResponse<{
 export type UserResponse = ServerResponse<{
   user: TUser;
 }>;
-
-/*export type UserLoginBodyDto = {
-  email: string;
-  password: string;
-};
-
-export type UserRegisterBodyDto = {
-  password: string;
-} & TUser;*/

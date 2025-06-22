@@ -2,7 +2,7 @@ import { FC } from 'react';
 
 import { TOrder } from '@utils-types';
 import { FeedInfoUI } from '../ui/feed-info';
-import { useSelector } from 'react-redux';
+import { useAppSelector } from '../../storage/hooks';
 import {
   selectFeedOrders,
   selectFeedTotal,
@@ -17,9 +17,9 @@ const getOrders = (orders: TOrder[], status: string): number[] =>
 
 export const FeedInfo: FC = () => {
   /** TODO: взять переменные из стора */
-  const orders: TOrder[] = useSelector(selectFeedOrders);
-  const total = useSelector(selectFeedTotal);
-  const totalToday = useSelector(selectFeedTotalToday);
+  const orders: TOrder[] = useAppSelector(selectFeedOrders);
+  const total = useAppSelector(selectFeedTotal);
+  const totalToday = useAppSelector(selectFeedTotalToday);
 
   const readyOrders = getOrders(orders, 'done');
 

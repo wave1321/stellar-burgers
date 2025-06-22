@@ -39,7 +39,6 @@ export const feedSlice = createSlice({
         state.error = null;
       })
       .addCase(fetchFeeds.fulfilled, (state, action) => {
-        console.log('Данные из API:', action.payload);
         state.loading = false;
         state.orders = action.payload.orders;
         state.total = action.payload.total;

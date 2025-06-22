@@ -1,7 +1,6 @@
 import { ProfileOrdersUI } from '@ui-pages';
 import { FC, useEffect } from 'react';
-import { useAppDispatch } from '../../storage/hooks';
-import { useSelector } from 'react-redux';
+import { useAppDispatch, useAppSelector } from '../../storage/hooks';
 import {
   fetchUserOrders,
   selectUserOrders
@@ -10,7 +9,7 @@ import {
 export const ProfileOrders: FC = () => {
   /** TODO: взять переменную из стора */
   const dispatch = useAppDispatch();
-  const orders = useSelector(selectUserOrders);
+  const orders = useAppSelector(selectUserOrders);
 
   useEffect(() => {
     dispatch(fetchUserOrders());

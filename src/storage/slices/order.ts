@@ -76,3 +76,23 @@ export const selectCurrentOrder = (state: RootState) =>
   state.order.currentOrder;
 export const selectOrderLoading = (state: RootState) => state.order.loading;
 export const selectOrderError = (state: RootState) => state.order.error;
+
+export const selectDataOrdersInfo = (number: string) => (state: RootState) => {
+  if (state.userOrders.orders.length) {
+    const order = state.userOrders.orders.find(
+      (order) => order.number === +number
+    );
+    if (order) return order;
+  }
+
+  if (state.feed.orders.length) {
+    const order = state.feed.orders.find((order) => order.number === +number);
+    if (order) return order;
+  }
+
+  if (state.order.currentOrder?.number === +number) {
+    return state.order.currentOrder;
+  }
+
+  return null;
+};

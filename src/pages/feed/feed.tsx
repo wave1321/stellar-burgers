@@ -1,7 +1,6 @@
 import { FeedUI } from '@ui-pages';
 import { FC, useEffect } from 'react';
-import { useSelector } from 'react-redux';
-import { useAppDispatch } from '../../storage/hooks';
+import { useAppDispatch, useAppSelector } from '../../storage/hooks';
 import {
   fetchFeeds,
   selectFeedLoading,
@@ -11,8 +10,8 @@ import {
 export const Feed: FC = () => {
   const dispatch = useAppDispatch();
   /** TODO: взять переменную из стора */
-  const orders = useSelector(selectFeedOrders);
-  const loading = useSelector(selectFeedLoading);
+  const orders = useAppSelector(selectFeedOrders);
+  const loading = useAppSelector(selectFeedLoading);
 
   useEffect(() => {
     dispatch(fetchFeeds());
