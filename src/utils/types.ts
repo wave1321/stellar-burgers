@@ -38,3 +38,33 @@ export type TUser = {
 };
 
 export type TTabMode = 'bun' | 'sauce' | 'main';
+
+export const enum RequestStatus {
+  Idle = 'Idle',
+  Loading = 'Loading',
+  Success = 'Success',
+  Failed = 'Failed'
+}
+
+type ServerResponse<T> = {
+  success: boolean;
+} & T;
+
+export type UserResponseToken = ServerResponse<{
+  user: TUser;
+  accessToken: string;
+  refreshToken: string;
+}>;
+
+export type UserResponse = ServerResponse<{
+  user: TUser;
+}>;
+
+/*export type UserLoginBodyDto = {
+  email: string;
+  password: string;
+};
+
+export type UserRegisterBodyDto = {
+  password: string;
+} & TUser;*/
