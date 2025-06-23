@@ -52,7 +52,7 @@ export const orderSlice = createSlice({
       })
       .addCase(createOrder.rejected, (state, action) => {
         state.loading = false;
-        state.error = action.error.message || 'Не возможно создать заказ';
+        state.error = action.error.message || 'Невозможно создать заказ';
       })
       .addCase(fetchOrderByNumber.pending, (state) => {
         state.loading = true;
