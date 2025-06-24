@@ -27,6 +27,10 @@ export const refreshToken = (): Promise<TRefreshResponse> =>
   })
     .then((res) => checkResponse<TRefreshResponse>(res))
     .then((refreshData) => {
+      console.log('New tokens saved:', {
+        accessToken: refreshData.accessToken,
+        refreshToken: refreshData.refreshToken
+      });
       if (!refreshData.success) {
         return Promise.reject(refreshData);
       }
@@ -204,7 +208,7 @@ export const resetPasswordApi = (data: { password: string; token: string }) =>
       return Promise.reject(data);
     });
 
-type TUserResponse = TServerResponse<{ user: TUser }>;
+export type TUserResponse = TServerResponse<{ user: TUser }>;
 
 export const getUserApi = () =>
   fetchWithRefresh<TUserResponse>(`${URL}/auth/user`, {
@@ -223,13 +227,30 @@ export const updateUserApi = (user: Partial<TRegisterData>) =>
     body: JSON.stringify(user)
   });
 
-export const logoutApi = () =>
+export const logoutApi = () => {
+  const token = localStorage.getItem('refreshToken');
+  if (!token) throw new Error('No refresh token found');
+
   fetch(`${URL}/auth/logout`, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json;charset=utf-8'
     },
     body: JSON.stringify({
-      token: localStorage.getItem('refreshToken')
+      token
     })
-  }).then((res) => checkResponse<TServerResponse<{}>>(res));
+  }).then((res) => {
+    checkResponse<TServerResponse<{}>>(res);
+  });
+};
+
+export const burgerApi = {
+  getIngredientsApi,
+  getFeedsApi,
+  getOrdersApi,
+  orderBurgerApi,
+  getOrderByNumberApi,
+  registerUserApi,
+  loginUserApi,
+  getUserApi
+};

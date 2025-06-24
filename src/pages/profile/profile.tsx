@@ -1,16 +1,22 @@
 import { ProfileUI } from '@ui-pages';
 import { FC, SyntheticEvent, useEffect, useState } from 'react';
+import { updateUser, userSelectors } from '../../storage/slices/user';
+import { useAppDispatch, useAppSelector } from '../../storage/hooks';
+
+interface IFormValue {
+  name: string;
+  email: string;
+  password: string;
+}
 
 export const Profile: FC = () => {
   /** TODO: взять переменную из стора */
-  const user = {
-    name: '',
-    email: ''
-  };
+  const dispatch = useAppDispatch();
+  const user = useAppSelector(userSelectors.getUser);
 
-  const [formValue, setFormValue] = useState({
-    name: user.name,
-    email: user.email,
+  const [formValue, setFormValue] = useState<IFormValue>({
+    name: user?.name ?? '',
+    email: user?.email ?? '',
     password: ''
   });
 
@@ -27,15 +33,20 @@ export const Profile: FC = () => {
     formValue.email !== user?.email ||
     !!formValue.password;
 
-  const handleSubmit = (e: SyntheticEvent) => {
+  const handleSubmit = async (e: SyntheticEvent) => {
     e.preventDefault();
+    try {
+      await dispatch(updateUser(formValue));
+    } finally {
+      window.location.reload();
+    }
   };
 
   const handleCancel = (e: SyntheticEvent) => {
     e.preventDefault();
     setFormValue({
-      name: user.name,
-      email: user.email,
+      name: user?.name ?? '',
+      email: user?.email ?? '',
       password: ''
     });
   };
@@ -57,5 +68,5 @@ export const Profile: FC = () => {
     />
   );
 
-  return null;
+  //return null;
 };
