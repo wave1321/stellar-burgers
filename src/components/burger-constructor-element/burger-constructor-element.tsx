@@ -5,7 +5,7 @@ import { moveIngredient, removeIngredient } from '../../storage/slices/burger';
 import { useAppDispatch } from '../../storage/hooks';
 
 export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
-  ({ ingredient, index, totalItems }) => {
+  ({ ingredient, index, totalItems, ...rest }) => {
     const dispatch = useAppDispatch();
 
     const handleMoveDown = () => {
@@ -42,6 +42,7 @@ export const BurgerConstructorElement: FC<BurgerConstructorElementProps> = memo(
         handleMoveUp={handleMoveUp}
         handleMoveDown={handleMoveDown}
         handleClose={handleClose}
+        {...rest}
       />
     );
   }
