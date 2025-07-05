@@ -1,5 +1,4 @@
-import userOrdersSlice from '../userOrders';
-import { USERORDERS_SLICE_NAME } from '../sliceNames';
+import userOrdersSlice, { fetchUserOrders } from '../userOrders';
 import type { TOrder } from '@utils-types';
 
 describe('userOrdersSlice', () => {
@@ -31,9 +30,9 @@ describe('userOrdersSlice', () => {
   ];
 
   describe('fetchUserOrders actions', () => {
-    it('Состояние ожиания', () => {
-      const action = { type: `${USERORDERS_SLICE_NAME}/fetchAll/pending` };
-      const state = userOrdersSlice(initialState, action);
+    it('Состояние ожидания', () => {
+      const pendingAction = fetchUserOrders.pending('');
+      const state = userOrdersSlice(initialState, pendingAction);
       expect(state).toEqual({
         orders: [],
         loading: true,
@@ -42,11 +41,11 @@ describe('userOrdersSlice', () => {
     });
 
     it('Состояние успеха', () => {
-      const action = {
-        type: `${USERORDERS_SLICE_NAME}/fetchAll/fulfilled`,
-        payload: mockOrders
-      };
-      const state = userOrdersSlice({ ...initialState, loading: true }, action);
+      const fulfilledAction = fetchUserOrders.fulfilled(mockOrders, '');
+      const state = userOrdersSlice(
+        { ...initialState, loading: true },
+        fulfilledAction
+      );
       expect(state).toEqual({
         orders: mockOrders,
         loading: false,
@@ -55,16 +54,19 @@ describe('userOrdersSlice', () => {
     });
 
     it('Состояние ошибки', () => {
-      const errorMessage = 'Failed to fetch user orders';
-      const action = {
-        type: `${USERORDERS_SLICE_NAME}/fetchAll/rejected`,
-        error: { message: errorMessage }
-      };
-      const state = userOrdersSlice({ ...initialState, loading: true }, action);
+      const errorMessage = 'Невозможно получить заказы пользователя';
+      const rejectedAction = fetchUserOrders.rejected(
+        new Error(errorMessage),
+        ''
+      );
+      const state = userOrdersSlice(
+        { ...initialState, loading: true },
+        rejectedAction
+      );
       expect(state).toEqual({
         orders: [],
         loading: false,
-        error: errorMessage || 'Невозможно получить заказы пользователя'
+        error: 'Невозможно получить заказы пользователя'
       });
     });
   });

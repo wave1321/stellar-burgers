@@ -1,6 +1,6 @@
 import { INGREDIENTS_SLICE_NAME } from '../sliceNames';
 import type { TIngredient } from '../../../utils/types';
-import ingredientsSlice from '../ingredients';
+import ingredientsSlice, { fetchIngredients } from '../ingredients';
 
 type TIngredientsState = {
   items: TIngredient[];
@@ -46,10 +46,8 @@ describe('ingredientsSlice', () => {
 
   describe('fetchIngredients actions', () => {
     it('Состояние ожидания', () => {
-      const action = {
-        type: `${INGREDIENTS_SLICE_NAME}/fetchAll/pending`
-      };
-      const state = ingredientsSlice(initialState, action);
+      const pendingAction = fetchIngredients.pending('', undefined);
+      const state = ingredientsSlice(initialState, pendingAction);
       expect(state).toEqual({
         items: [],
         loading: true,
@@ -58,13 +56,14 @@ describe('ingredientsSlice', () => {
     });
 
     it('Состояние успеха', () => {
-      const action = {
-        type: `${INGREDIENTS_SLICE_NAME}/fetchAll/fulfilled`,
-        payload: mockIngredients
-      };
+      const fulfilledAction = fetchIngredients.fulfilled(
+        mockIngredients,
+        '',
+        undefined
+      );
       const state = ingredientsSlice(
         { ...initialState, loading: true },
-        action
+        fulfilledAction
       );
       expect(state).toEqual({
         items: mockIngredients,
@@ -74,19 +73,19 @@ describe('ingredientsSlice', () => {
     });
 
     it('Состояние ошибки', () => {
-      const errorMessage = 'Network error';
-      const action = {
-        type: `${INGREDIENTS_SLICE_NAME}/fetchAll/rejected`,
-        error: { message: errorMessage }
-      };
+      const rejectedAction = fetchIngredients.rejected(
+        new Error('Невозможно получить ингредиенты'),
+        '',
+        undefined
+      );
       const state = ingredientsSlice(
         { ...initialState, loading: true },
-        action
+        rejectedAction
       );
       expect(state).toEqual({
         items: [],
         loading: false,
-        error: errorMessage || 'Невозможно получить ингредиенты'
+        error: 'Невозможно получить ингредиенты'
       });
     });
   });

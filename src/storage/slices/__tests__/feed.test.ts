@@ -1,5 +1,4 @@
-import feedSlice from '../feed';
-import { FEED_SLICE_NAME } from '../sliceNames';
+import feedSlice, { fetchFeeds } from '../feed';
 import type { TOrder } from '../../../utils/types';
 
 describe('feedSlice', () => {
@@ -35,13 +34,14 @@ describe('feedSlice', () => {
   const mockFeedResponse = {
     orders: mockOrders,
     total: 100,
-    totalToday: 10
+    totalToday: 10,
+    success: true
   };
 
   describe('fetchFeeds actions', () => {
     it('Состояние ожидания', () => {
-      const action = { type: `${FEED_SLICE_NAME}/fetchAll/pending` };
-      const state = feedSlice(initialState, action);
+      const pendingAction = fetchFeeds.pending('');
+      const state = feedSlice(initialState, pendingAction);
       expect(state).toEqual({
         ...initialState,
         loading: true,
@@ -50,11 +50,11 @@ describe('feedSlice', () => {
     });
 
     it('Состояние успеха', () => {
-      const action = {
-        type: `${FEED_SLICE_NAME}/fetchAll/fulfilled`,
-        payload: mockFeedResponse
-      };
-      const state = feedSlice({ ...initialState, loading: true }, action);
+      const fulfilledAction = fetchFeeds.fulfilled(mockFeedResponse, '');
+      const state = feedSlice(
+        { ...initialState, loading: true },
+        fulfilledAction
+      );
       expect(state).toEqual({
         orders: mockOrders,
         total: 100,
@@ -65,16 +65,16 @@ describe('feedSlice', () => {
     });
 
     it('Состояние ошибки', () => {
-      const errorMessage = 'Failed to fetch feed';
-      const action = {
-        type: `${FEED_SLICE_NAME}/fetchAll/rejected`,
-        error: { message: errorMessage }
-      };
-      const state = feedSlice({ ...initialState, loading: true }, action);
+      const errorMessage = 'Не возможно получить ленту заказов';
+      const rejectedAction = fetchFeeds.rejected(new Error(errorMessage), '');
+      const state = feedSlice(
+        { ...initialState, loading: true },
+        rejectedAction
+      );
       expect(state).toEqual({
         ...initialState,
         loading: false,
-        error: errorMessage || 'Не возможно получить ленту заказов'
+        error: errorMessage
       });
     });
   });

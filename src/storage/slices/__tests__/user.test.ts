@@ -1,16 +1,15 @@
-import { createAction } from '@reduxjs/toolkit';
-import userSlice, { userActions } from '../user';
-import { RequestStatus, TUser } from '../../../utils/types';
-import { USER_SLICE_NAME } from '../sliceNames';
-
-export interface TUserState {
-  isAuthChecked: boolean;
-  data: TUser | null;
-  requestStatus: RequestStatus;
-}
+import userSlice, {
+  userActions,
+  checkUserAuth,
+  registerUser,
+  loginUser,
+  logoutUser
+} from '../user';
+import type { TUser } from '../../../utils/types';
+import { RequestStatus } from '../../../utils/types';
 
 describe('userSlice', () => {
-  const initialState: TUserState = {
+  const initialState = {
     isAuthChecked: false,
     data: null,
     requestStatus: RequestStatus.Idle
@@ -29,39 +28,54 @@ describe('userSlice', () => {
     });
   });
 
-  describe('extraReducers cases', () => {
+  describe('async thunks reducers', () => {
     it('Проверяем checkUserAuth.fulfilled', () => {
-      const action = {
-        type: `${USER_SLICE_NAME}/checkUserAuth/fulfilled`,
-        payload: { user: mockUser }
-      };
+      const action = checkUserAuth.fulfilled(
+        {
+          user: mockUser,
+          success: false
+        },
+        ''
+      );
       const state = userSlice(initialState, action);
       expect(state.data).toEqual(mockUser);
       expect(state.requestStatus).toBe(RequestStatus.Success);
     });
 
     it('Проверяем registerUser.fulfilled', () => {
-      const action = {
-        type: `${USER_SLICE_NAME}/registerUser/fulfilled`,
-        payload: { user: mockUser }
-      };
+      const action = registerUser.fulfilled(
+        {
+          user: mockUser,
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          success: false
+        },
+        '',
+        { email: 'test@test.com', password: '123456', name: 'Test' }
+      );
       const state = userSlice(initialState, action);
       expect(state.data).toEqual(mockUser);
       expect(state.requestStatus).toBe(RequestStatus.Success);
     });
 
     it('Проверяем loginUser.fulfilled', () => {
-      const action = {
-        type: `${USER_SLICE_NAME}/loginUser/fulfilled`,
-        payload: { user: mockUser }
-      };
+      const action = loginUser.fulfilled(
+        {
+          user: mockUser,
+          accessToken: 'token',
+          refreshToken: 'refresh',
+          success: false
+        },
+        '',
+        { email: 'test@test.com', password: '123456' }
+      );
       const state = userSlice(initialState, action);
       expect(state.data).toEqual(mockUser);
       expect(state.requestStatus).toBe(RequestStatus.Success);
     });
 
     it('Проверяем logoutUser.fulfilled', () => {
-      const action = { type: `${USER_SLICE_NAME}/logout/fulfilled` };
+      const action = logoutUser.fulfilled(undefined, '');
       const state = userSlice({ ...initialState, data: mockUser }, action);
       expect(state.data).toBeNull();
       expect(state.isAuthChecked).toBe(true);
@@ -69,19 +83,15 @@ describe('userSlice', () => {
     });
   });
 
-  describe('extraReducers matchers', () => {
+  describe('requestStatus matchers', () => {
     it('Проверяем requestStatus когда загрузка', () => {
-      const pendingAction = createAction(
-        `${USER_SLICE_NAME}/anyAction/pending`
-      )();
+      const pendingAction = checkUserAuth.pending('');
       const state = userSlice(initialState, pendingAction);
       expect(state.requestStatus).toBe(RequestStatus.Loading);
     });
 
     it('Проверяем requestStatus когда ошибка', () => {
-      const rejectedAction = createAction(
-        `${USER_SLICE_NAME}/anyAction/rejected`
-      )();
+      const rejectedAction = checkUserAuth.rejected(new Error('Error'), '');
       const state = userSlice(initialState, rejectedAction);
       expect(state.requestStatus).toBe(RequestStatus.Failed);
     });

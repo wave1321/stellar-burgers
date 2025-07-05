@@ -1,26 +1,35 @@
+// конастанты
+const ingredientItem = '[data-cy="ingredient-item"]';
+const constructorItem = '[data-cy="constructor-item"]';
+const constructorBunTop = '[data-cy="constructor-bun-top"]';
+const constructorBunBottom = '[data-cy="constructor-bun-bottom"]';
+const modal = '[data-cy="modal"]';
+const modalCloseButton = '[data-cy="modal-close-button"]';
+const modalOverlay = '[data-cy="modal-overlay"]';
+const orderTotal = '[data-cy="order-total"]';
+
+// кастомные команды
+Cypress.Commands.add('addIngredient', (label: string) => {
+  cy.get(ingredientItem).contains(label).parent().contains('Добавить').click();
+});
+
 describe('Добавление элементов в конструктор', () => {
   beforeEach(() => {
     cy.intercept('GET', 'api/ingredients', { fixture: 'ingredients.json' });
     cy.visit('/');
+
+    cy.get(ingredientItem).as('ingredientItem');
   });
 
   it('Добавление булки', () => {
-    cy.get('[data-cy="ingredient-item"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .contains('Добавить')
-      .click();
-    cy.get('[data-cy="constructor-bun-top"]').should('exist');
-    cy.get('[data-cy="constructor-bun-bottom"]').should('exist');
+    cy.addIngredient('Краторная булка N-200i');
+    cy.get(constructorBunTop).should('exist');
+    cy.get(constructorBunBottom).should('exist');
   });
 
   it('Добавление ингредиента', () => {
-    cy.get('[data-cy="ingredient-item"]')
-      .contains('Филе Люминесцентного')
-      .parent()
-      .contains('Добавить')
-      .click();
-    cy.get('[data-cy="constructor-item"]').should('exist');
+    cy.addIngredient('Филе Люминесцентного');
+    cy.get('@ingredientItem').should('exist');
   });
 });
 
@@ -28,24 +37,31 @@ describe('Работа модального окна', () => {
   beforeEach(() => {
     cy.intercept('GET', 'api/ingredients', { fixture: 'ingredients.json' });
     cy.visit('/');
+
+    cy.get(ingredientItem).as('ingredientItem');
   });
 
   it('Открытие модального окна', () => {
-    cy.get('[data-cy="ingredient-item"]').first().click();
-    cy.get('[data-cy="modal"]').should('exist');
-    cy.get('#modals').should('contain', 'Описание ингредиента');
+    cy.get('@ingredientItem').first().click();
+    cy.get(modal).should('exist');
+    cy.get('#modals')
+      .should('contain', 'Описание ингредиента')
+      .should('contain', 'Краторная булка N-200i')
+      .contains('Жиры, г')
+      .parent()
+      .contains('33');
   });
 
   it('Закрытие модалки через крестик', () => {
-    cy.get('[data-cy="ingredient-item"]').first().click();
-    cy.get('[data-cy="modal-close-button"]').click();
-    cy.get('[data-cy="modal"]').should('not.exist');
+    cy.get('@ingredientItem').first().click();
+    cy.get(modalCloseButton).click();
+    cy.get(modal).should('not.exist');
   });
 
   it('Закрытие модалки через оверлей', () => {
-    cy.get('[data-cy="ingredient-item"]').first().click();
-    cy.get('[data-cy="modal-overlay"]').click({ force: true });
-    cy.get('[data-cy="modal"]').should('not.exist');
+    cy.get('@ingredientItem').first().click();
+    cy.get(modalOverlay).click({ force: true });
+    cy.get(modal).should('not.exist');
   });
 });
 
@@ -68,6 +84,8 @@ describe('Создание заказа', () => {
     cy.setCookie('accessToken', 'test-refreshToken');
     cy.visit('/');
     cy.wait('@getIngredients');
+
+    cy.get(orderTotal).as('orderTotal');
   });
 
   afterEach(() => {
@@ -76,19 +94,11 @@ describe('Создание заказа', () => {
   });
 
   it('Непосредственно имитация создания заказа', () => {
-    cy.get('[data-cy="ingredient-item"]')
-      .contains('Краторная булка N-200i')
-      .parent()
-      .contains('Добавить')
-      .click();
+    cy.addIngredient('Краторная булка N-200i');
 
-    cy.get('[data-cy="ingredient-item"]')
-      .contains('Филе Люминесцентного')
-      .parent()
-      .contains('Добавить')
-      .click();
+    cy.addIngredient('Филе Люминесцентного');
 
-    cy.get('[data-cy="order-total"]').contains('Оформить заказ').click();
+    cy.get('@orderTotal').contains('Оформить заказ').click();
 
     cy.wait('@createOrder')
       .its('request.body')
@@ -96,14 +106,14 @@ describe('Создание заказа', () => {
         ingredients: ['1', '3', '1']
       });
 
-    cy.get('[data-cy="modal"]').should('be.visible');
+    cy.get(modal).should('be.visible');
     cy.contains('12345').should('exist');
 
-    cy.get('[data-cy="modal-close-button"]').click();
-    cy.get('[data-cy="modal"]').should('not.exist');
+    cy.get(modalCloseButton).click();
+    cy.get(modal).should('not.exist');
 
-    cy.get('[data-cy="constructor-bun-top"]').should('not.exist');
-    cy.get('[data-cy="constructor-item"]').should('not.exist');
+    cy.get(constructorBunTop).should('not.exist');
+    cy.get(constructorItem).should('not.exist');
     cy.contains('Выберите булки').should('exist');
     cy.contains('Выберите начинку').should('exist');
   });

@@ -1,5 +1,8 @@
-import orderSlice, { clearOrder } from '../order';
-import { ORDER_SLICE_NAME } from '../sliceNames';
+import orderSlice, {
+  clearOrder,
+  createOrder,
+  fetchOrderByNumber
+} from '../order';
 import type { TOrder } from '../../../utils/types';
 
 describe('orderSlice', () => {
@@ -32,8 +35,8 @@ describe('orderSlice', () => {
 
   describe('createOrder actions', () => {
     it('Состояние ожидания', () => {
-      const action = { type: `${ORDER_SLICE_NAME}/create/pending` };
-      const state = orderSlice(initialState, action);
+      const pendingAction = createOrder.pending('', ['ing1', 'ing2']);
+      const state = orderSlice(initialState, pendingAction);
       expect(state).toEqual({
         currentOrder: null,
         loading: true,
@@ -42,11 +45,19 @@ describe('orderSlice', () => {
     });
 
     it('Состояние успеха', () => {
-      const action = {
-        type: `${ORDER_SLICE_NAME}/create/fulfilled`,
-        payload: { order: mockOrder }
-      };
-      const state = orderSlice({ ...initialState, loading: true }, action);
+      const fulfilledAction = createOrder.fulfilled(
+        {
+          order: mockOrder,
+          success: true,
+          name: ''
+        },
+        '',
+        ['ing1', 'ing2']
+      );
+      const state = orderSlice(
+        { ...initialState, loading: true },
+        fulfilledAction
+      );
       expect(state).toEqual({
         currentOrder: mockOrder,
         loading: false,
@@ -55,55 +66,62 @@ describe('orderSlice', () => {
     });
 
     it('Состояние ошибки', () => {
-      const errorMessage = 'Create order failed';
-      const action = {
-        type: `${ORDER_SLICE_NAME}/create/rejected`,
-        error: { message: errorMessage }
-      };
-      const state = orderSlice({ ...initialState, loading: true }, action);
+      const errorMessage = 'Невозможно создать заказ';
+      const rejectedAction = createOrder.rejected(new Error(errorMessage), '', [
+        'ing1',
+        'ing2'
+      ]);
+      const state = orderSlice(
+        { ...initialState, loading: true },
+        rejectedAction
+      );
       expect(state).toEqual({
         currentOrder: null,
         loading: false,
-        error: errorMessage || 'Невозможно создать заказ'
+        error: errorMessage
+      });
+    });
+  });
+
+  describe('fetchOrderByNumber actions', () => {
+    it('Состояние ожидания', () => {
+      const pendingAction = fetchOrderByNumber.pending('', 1234);
+      const state = orderSlice(initialState, pendingAction);
+      expect(state).toEqual({
+        currentOrder: null,
+        loading: true,
+        error: null
       });
     });
 
-    describe('fetchOrderByNumber actions', () => {
-      it('Состояние ожидания', () => {
-        const action = { type: `${ORDER_SLICE_NAME}/fetchByNumber/pending` };
-        const state = orderSlice(initialState, action);
-        expect(state).toEqual({
-          currentOrder: null,
-          loading: true,
-          error: null
-        });
+    it('Состояние успеха', () => {
+      const fulfilledAction = fetchOrderByNumber.fulfilled(mockOrder, '', 1234);
+      const state = orderSlice(
+        { ...initialState, loading: true },
+        fulfilledAction
+      );
+      expect(state).toEqual({
+        currentOrder: mockOrder,
+        loading: false,
+        error: null
       });
+    });
 
-      it('Состояние успеха', () => {
-        const action = {
-          type: `${ORDER_SLICE_NAME}/fetchByNumber/fulfilled`,
-          payload: mockOrder
-        };
-        const state = orderSlice({ ...initialState, loading: true }, action);
-        expect(state).toEqual({
-          currentOrder: mockOrder,
-          loading: false,
-          error: null
-        });
-      });
-
-      it('Состояние ошибки', () => {
-        const errorMessage = 'Fetch order failed';
-        const action = {
-          type: `${ORDER_SLICE_NAME}/fetchByNumber/rejected`,
-          error: { message: errorMessage }
-        };
-        const state = orderSlice({ ...initialState, loading: true }, action);
-        expect(state).toEqual({
-          currentOrder: null,
-          loading: false,
-          error: errorMessage || 'Невозможно получить заказ'
-        });
+    it('Состояние ошибки', () => {
+      const errorMessage = 'Невозможно получить заказ';
+      const rejectedAction = fetchOrderByNumber.rejected(
+        new Error(errorMessage),
+        '',
+        1234
+      );
+      const state = orderSlice(
+        { ...initialState, loading: true },
+        rejectedAction
+      );
+      expect(state).toEqual({
+        currentOrder: null,
+        loading: false,
+        error: errorMessage
       });
     });
   });
